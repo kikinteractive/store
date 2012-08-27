@@ -1,6 +1,6 @@
 /**
  * store.js v1.0
- * Bindable persistent storage
+ * Bindable & persistent storage
  * Copyright (c) 2012 Kik Interactive, http://kik.com
  * Released under the MIT license
  *
