@@ -1,36 +1,3 @@
-/**
- * store.js v1.0
- * Bindable & persistent storage
- * Copyright (c) 2012 Kik Interactive, http://kik.com
- * Released under the MIT license
- *
- * store.js
- * Copyright (c) 2010-2012 Marcus Westin
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
-
-
-
 /* http://www.JSON.org/json2.js */
 this.JSON||(this.JSON={});(function(){function c(a){return a<10?"0"+a:a}function a(a){n.lastIndex=0;return n.test(a)?'"'+a.replace(n,function(a){var b=q[a];return typeof b==="string"?b:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function m(b,c){var g,i,e,d,p=j,h,f=c[b];f&&(typeof f==="object"&&typeof f.toJSON==="function")&&(f=f.toJSON(b));typeof k==="function"&&(f=k.call(c,b,f));switch(typeof f){case "string":return a(f);case "number":return isFinite(f)?String(f):"null";case "boolean":case "null":return String(f);
 case "object":if(!f)return"null";j=j+l;h=[];if(Object.prototype.toString.apply(f)==="[object Array]"){d=f.length;for(g=0;g<d;g=g+1)h[g]=m(g,f)||"null";e=h.length===0?"[]":j?"[\n"+j+h.join(",\n"+j)+"\n"+p+"]":"["+h.join(",")+"]";j=p;return e}if(k&&typeof k==="object"){d=k.length;for(g=0;g<d;g=g+1){i=k[g];if(typeof i==="string")(e=m(i,f))&&h.push(a(i)+(j?": ":":")+e)}}else for(i in f)if(Object.hasOwnProperty.call(f,i))(e=m(i,f))&&h.push(a(i)+(j?": ":":")+e);e=h.length===0?"{}":j?"{\n"+j+h.join(",\n"+
