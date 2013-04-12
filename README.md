@@ -1,6 +1,8 @@
 store.js - Bindable & persistent storage
 ========================================
 
+TODO
+
 Store.js provides namespaced persistent storage units that provide a bindable interface, convenient for updating views or triggering events based on data.
 
 store.js also provides convenient bindings for ZeptoJS and jQuery to make the development process as seamless as possible.

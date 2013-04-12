@@ -2,7 +2,7 @@
 
 PROJECT="store"
 LICENSE="LICENSE.txt"
-MAJOR_VERSION="1"
+MAJOR_VERSION="2"
 MINOR_VERSION="0"
 BUG_VERSION="0"
 AWS_BUCKET="cdn.kik.com"
@@ -45,8 +45,10 @@ createBuildDir () {
 }
 
 preprendLicense () {
+	tmpFile="${1}.tmp"
 	if [ -n "${LICENSE}" ] ; then
-		cat "${LICENSE}" "${1}" | cat - | tee "${1}" >/dev/null
+		cat "${LICENSE}" "${1}" > "${tmpFile}"
+		mv "${tmpFile}" "${1}"
 	fi
 }
 

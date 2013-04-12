@@ -1,398 +1,395 @@
-/* http://www.JSON.org/json2.js */
-this.JSON||(this.JSON={});(function(){function c(a){return a<10?"0"+a:a}function a(a){n.lastIndex=0;return n.test(a)?'"'+a.replace(n,function(a){var b=q[a];return typeof b==="string"?b:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function m(b,c){var g,i,e,d,p=j,h,f=c[b];f&&(typeof f==="object"&&typeof f.toJSON==="function")&&(f=f.toJSON(b));typeof k==="function"&&(f=k.call(c,b,f));switch(typeof f){case "string":return a(f);case "number":return isFinite(f)?String(f):"null";case "boolean":case "null":return String(f);
-case "object":if(!f)return"null";j=j+l;h=[];if(Object.prototype.toString.apply(f)==="[object Array]"){d=f.length;for(g=0;g<d;g=g+1)h[g]=m(g,f)||"null";e=h.length===0?"[]":j?"[\n"+j+h.join(",\n"+j)+"\n"+p+"]":"["+h.join(",")+"]";j=p;return e}if(k&&typeof k==="object"){d=k.length;for(g=0;g<d;g=g+1){i=k[g];if(typeof i==="string")(e=m(i,f))&&h.push(a(i)+(j?": ":":")+e)}}else for(i in f)if(Object.hasOwnProperty.call(f,i))(e=m(i,f))&&h.push(a(i)+(j?": ":":")+e);e=h.length===0?"{}":j?"{\n"+j+h.join(",\n"+
-j)+"\n"+p+"}":"{"+h.join(",")+"}";j=p;return e}}if(typeof Date.prototype.toJSON!=="function"){Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+"-"+c(this.getUTCMonth()+1)+"-"+c(this.getUTCDate())+"T"+c(this.getUTCHours())+":"+c(this.getUTCMinutes())+":"+c(this.getUTCSeconds())+"Z":null};String.prototype.toJSON=Number.prototype.toJSON=Boolean.prototype.toJSON=function(){return this.valueOf()}}var b=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-n=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,j,l,q={"\b":"\\b","\t":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},k;if(typeof JSON.stringify!=="function")JSON.stringify=function(a,b,c){var i;l=j="";if(typeof c==="number")for(i=0;i<c;i=i+1)l=l+" ";else typeof c==="string"&&(l=c);if((k=b)&&typeof b!=="function"&&(typeof b!=="object"||typeof b.length!=="number"))throw Error("JSON.stringify");return m("",{"":a})};
-if(typeof JSON.parse!=="function")JSON.parse=function(a,c){function g(a,d){var b,h,f=a[d];if(f&&typeof f==="object")for(b in f)if(Object.hasOwnProperty.call(f,b)){h=g(f,b);h!==void 0?f[b]=h:delete f[b]}return c.call(a,d,f)}var i,a=String(a);b.lastIndex=0;b.test(a)&&(a=a.replace(b,function(a){return"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)}));if(/^[\],:{}\s]*$/.test(a.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,"@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-"]").replace(/(?:^|:|,)(?:\s*\[)+/g,""))){i=eval("("+a+")");return typeof c==="function"?g({"":i},""):i}throw new SyntaxError("JSON.parse");}})();
+var Store = function (window, document, Zepto, jQuery) {
+	var VALUE_PREFIX    = '__STORE_VALUE__',
+		INDEX_PREFIX    = '__STORE_INDEX__',
+		PERSISTENT_FLAG = 'p';
 
+	var cache          = {},
+		keys           = [],
+		persistentKeys = [],
+		handlers       = {},
+		allHandlers    = [],
+		currentSize    = 0,
+		maxKeys        = 256 * 1024,
+		maxSize        = 2 * 1024 * 1024;
 
+	loadFromStorage();
 
-(function (window, document, Zepto, jQuery) {
-	var KEY_PREFIX = '__STORE__';
-
-
-
-	/* Copyright (c) 2010-2012 Marcus Westin */
-	var persistentStorage=function(c){var a={},m=c.document,b;a.disabled=false;a.set=function(){};a.get=function(){};a.remove=function(){};a.clear=function(){};a.transact=function(e,d,b){var c=a.get(e);null==b&&(b=d,d=null);"undefined"==typeof c&&(c=d||{});b(c);a.set(e,c)};a.getAll=function(){};a.serialize=function(a){return JSON.stringify(a)};a.deserialize=function(a){return"string"!=typeof a?void 0:JSON.parse(a)};var n;try{n="localStorage"in c&&c.localStorage}catch(j){n=false}if(n){b=c.localStorage;a.set=function(e,
-	d){if(void 0===d)return a.remove(e);b.setItem(e,a.serialize(d))};a.get=function(e){return a.deserialize(b.getItem(e))};a.remove=function(a){b.removeItem(a)};a.clear=function(){b.clear()};a.getAll=function(){for(var e={},d=0;d<b.length;++d){var c=b.key(d);e[c]=a.get(c)}return e}}else{var l;try{l="globalStorage"in c&&c.globalStorage&&c.globalStorage[c.location.hostname]}catch(q){l=false}if(l){b=c.globalStorage[c.location.hostname];a.set=function(e,d){if(void 0===d)return a.remove(e);b[e]=a.serialize(d)};
-	a.get=function(e){return a.deserialize(b[e]&&b[e].value)};a.remove=function(a){delete b[a]};a.clear=function(){for(var a in b)delete b[a]};a.getAll=function(){for(var e={},d=0;d<b.length;++d){var c=b.key(d);e[c]=a.get(c)}return e}}else if(m.documentElement.addBehavior){var k,o;try{o=new ActiveXObject("htmlfile");o.open();o.write('<script>document.w=window<\/script><iframe src="/favicon.ico"></frame>');o.close();k=o.w.frames[0].document;b=k.createElement("div")}catch(r){b=m.createElement("div");k=
-	m.body}var c=function(e){return function(){var d=Array.prototype.slice.call(arguments,0);d.unshift(b);k.appendChild(b);b.addBehavior("#default#userData");b.load("localStorage");d=e.apply(a,d);k.removeChild(b);return d}},g=RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]","g");a.set=c(function(b,d,c){d=d.replace(g,"___");if(void 0===c)return a.remove(d);b.setAttribute(d,a.serialize(c));b.save("localStorage")});a.get=c(function(b,c){c=c.replace(g,"___");return a.deserialize(b.getAttribute(c))});a.remove=
-	c(function(a,b){b=b.replace(g,"___");a.removeAttribute(b);a.save("localStorage")});a.clear=c(function(a){var b=a.XMLDocument.documentElement.attributes;a.load("localStorage");for(var c=0,h;h=b[c];c++)a.removeAttribute(h.name);a.save("localStorage")});a.getAll=c(function(b){var c=b.XMLDocument.documentElement.attributes;b.load("localStorage");for(var b={},g=0,h;h=c[g];++g)b[h]=a.get(h);return b})}}try{a.set("__storejs__","__storejs__");"__storejs__"!=a.get("__storejs__")&&(a.disabled=true);a.remove("__storejs__")}catch(i){a.disabled=
-	true}a.enabled=!a.disabled;return a}(window);
-
-
-
-	function isDOMNode (elem) {
-		if ( !elem ) {
-			return false;
+	var Store = {
+		set  : setValue         ,
+		get  : getValue         ,
+		peek : peekValue        ,
+		has  : hasValue         ,
+		del  : deleteValue      ,
+		on   : bindListener     ,
+		off  : unbindListener   ,
+		get maxKeys () {
+			return maxKeys;
+		},
+		set maxKeys (val) {
+			setMaxKeys(val);
+		},
+		get maxSize () {
+			return maxSize;
+		},
+		set maxSize (val) {
+			setMaxSize(val);
 		}
-
-		try {
-			return (elem instanceof Node) || (elem instanceof HTMLElement);
-		} catch (err) {}
-
-		if (typeof elem !== 'object') {
-			return false;
-		}
-
-		if (typeof elem.nodeType !== 'number') {
-			return false;
-		}
-
-		if (typeof elem.nodeName !== 'string') {
-			return false;
-		}
-
-		return true;
-	}
-
-
-
-	function validateKey (key) {
-		if (typeof key !== 'string') {
-			throw TypeError('key must be a string, got ' + key);
-		}
-	}
-
-	function validateTransform (transform) {
-		switch (typeof transform) {
-			case 'undefined':
-			case 'function':
-				break;
-
-			default:
-				throw TypeError('transform must be a function, got ' + transform);
-		}
-	}
-
-
-
-	function Store (obj, namespace) {
-		switch (typeof obj) {
-			case 'string':
-				namespace = obj;
-				// fall through
-
-			case 'undefined':
-				obj = {};
-				// fall through
-
-			case 'function':
-			case 'object':
-				break;
-
-			default:
-				throw TypeError('store must be an object, got ' + obj);
-		}
-
-		switch (typeof namespace) {
-			case 'string':
-				if ( !namespace ) {
-					throw TypeError('namespace may not be the empty string');
-				}
-				if ( !persistentStorage.enabled ) {
-					namespace = null;
-				}
-				// fall through
-
-			case 'undefined':
-				break;
-
-			default:
-				throw TypeError('namespace must be a string if defined, got ' + namespace);
-		}
-
-
-
-		var cache     = {},
-			listeners = {};
-
-
-
-		function bind (key, listener, transform) {
-			validateKey(key);
-			validateTransform(transform);
-
-			var data = { listener : listener };
-
-			if (typeof listener === 'function') {
-				data.type = 'function';
-			}
-			else if ( isDOMNode(listener) ) {
-				if (transform) {
-					data.type      = 'transform';
-					data.transform = transform;
-				}
-				else {
-					data.type = 'node';
-				}
-			}
-			else {
-				throw TypeError('listener must be a function or DOM node, got ' + listener);
-			}
-
-			if ( !listeners[key] ) {
-				listeners[key] = [ data ];
-			}
-			else {
-				listeners[key].push(data);
-			}
-		}
-
-
-
-		function unbind (key, listener) {
-			validateKey(key);
-
-			var keyListeners = listeners[key];
-
-			if ( !keyListeners ) {
-				return;
-			}
-
-			for (var i=keyListeners.length; i--;) {
-				if (keyListeners[i].listener === listener) {
-					keyListeners.splice(i, 1);
-				}
-			}
-		}
-
-
-		var triggers = {
-			'function'  : triggerFunction  ,
-			'node'      : triggerElement   ,
-			'transform' : triggerTransform
-		};
-
-		function trigger (key) {
-			validateKey(key);
-
-			var keyListeners = listeners[key],
-				data;
-
-			if ( !keyListeners ) {
-				return;
-			}
-
-			for (var i=0, len=keyListeners.length; i<len; i++) {
-				data = keyListeners[i];
-				triggers[data.type](key, data.listener, data.transform);
-			}
-		}
-
-		function triggerFunction (key, func) {
-			try {
-				func(key, cache[key]);
-			}
-			catch (err) {
-				if (window.console && window.console.error) {
-					window.console.error(err + '');
-				}
-			}
-		}
-
-		function triggerElement (key, elem) {
-			var value = cache[key] + '';
-
-			if (typeof elem.innerText !== 'undefined') {
-				elem.innerText = value;
-			}
-			else if (typeof elem.textContent !== 'undefined') {
-				elem.textContent = value;
-			}
-		}
-
-		function triggerTransform (key, elem, transform) {
-			var value = '';
-
-			try {
-				value = transform(key, cache[key]);
-			}
-			catch (err) {
-				if (window.console && window.console.error) {
-					window.console.error(err + '');
-				}
-				return;
-			}
-
-			elem.innerHTML = value;
-		}
-
-
-
-		function getValue (key) {
-			validateKey(key);
-
-			return cache[key];
-		}
-
-
-
-		function hasValue (key) {
-			validateKey(key);
-
-			return (typeof cache[key] !== 'undefined');
-		}
-
-
-
-		function setValue (key, value) {
-			validateKey(key);
-
-			cache[key] = value;
-
-			if (namespace) {
-				setPersistentStore(key, value);
-			}
-
-			trigger(key);
-		}
-
-
-
-		function delValue (key) {
-			validateKey(key);
-
-			delete cache[key];
-
-			if (namespace) {
-				delPersistentStore();
-			}
-
-			trigger(key);
-		}
-
-
-
-		function takeSnapshot () {
-			var snapshot = {};
-
-			for (var key in cache) {
-				snapshot[key] = cache[key];
-			}
-
-			return snapshot;
-		}
-
-
-
-		function persistentStorePrefix () {
-			return KEY_PREFIX + namespace + '__';
-		}
-
-
-		function populateFromPersistentStore () {
-			var prefix       = persistentStorePrefix(),
-				prefixLength = prefix.length;
-
-			try {
-				var snapshot = persistentStorage.getAll();
-
-				for (var fullKey in snapshot) {
-					if (fullKey.substr(0, prefixLength) === prefix) {
-						cache[ fullKey.substr(prefixLength) ] = snapshot[fullKey];
-					}
-				}
-			}
-			catch (err) {}
-		}
-
-
-
-		function setPersistentStore (key, value) {
-			try {
-				persistentStorage.set(persistentStorePrefix() + key, value);
-			}
-			catch (err) {}
-		}
-
-
-
-		function delPersistentStore (key) {
-			try {
-				persistentStorage.remove(persistentStorePrefix() + key);
-			}
-			catch (err) {}
-		}
-
-
-
-		if (namespace) {
-			populateFromPersistentStore();
-		}
-
-
-
-		obj.bind     = bind;
-		obj.unbind   = unbind;
-		obj.get      = getValue;
-		obj.has      = hasValue;
-		obj.set      = setValue;
-		obj.del      = delValue;
-		obj.snapshot = takeSnapshot;
-		return obj;
-	}
-
-	Store(Store, KEY_PREFIX);
-
-
+	};
 
 	if (Zepto) {
 		Zepto.store = Store;
-
-		Zepto.extend(Zepto.fn, {
-			storeBind : function (store, key, transform) {
-				if (typeof store === 'string') {
-					transform = key;
-					key       = store;
-					store     = Store;
-				}
-
-				this.forEach(function (elem) {
-					store.bind(key, elem, transform);
-				});
-			},
-
-			storeUnbind : function (store, key) {
-				if (typeof store === 'string') {
-					key   = store;
-					store = Store;
-				}
-
-				this.forEach(function (elem) {
-					store.unbind(key, elem);
-				});
-			}
-		});
 	}
-
 	if (jQuery) {
 		jQuery.store = Store;
-
-		jQuery.fn.storeBind = function (store, key, transform) {
-			if (typeof store === 'string') {
-				transform = key;
-				key       = store;
-				store     = Store;
-			}
-
-			this.each(function () {
-				store.bind(key, this, transform);
-			});
-		};
-
-		jQuery.fn.storeUnbind = function (store, key) {
-			if (typeof store === 'string') {
-				key   = store;
-				store = Store;
-			}
-
-			this.each(function () {
-				store.unbind(key, this);
-			});
-		};
 	}
 
-	window.Store = Store;
-})(window, document, window.Zepto, window.jQuery);
+	return Store;
+
+
+
+	/* Persistent storage */
+
+	function loadFromStorage () {
+		var prefixLength = VALUE_PREFIX.length;
+
+		for (var key in localStorage) {
+			if (key.substr(0, prefixLength) !== VALUE_PREFIX) {
+				loadItemFromStorage( key.substr(prefixLength) );
+			}
+		}
+
+		var badIndex = -1;
+
+		for (var i=keys.length; i--;) {
+			if (typeof keys[i] !== 'string') {
+				badIndex = i;
+				keys.splice(i, 1);
+			}
+		}
+
+		if (badIndex !== -1) {
+			updateIndexes(badIndex);
+		}
+
+		enforceMaximums(true);
+	}
+
+	function loadItemFromStorage (key) {
+		var raw = localStorage[VALUE_PREFIX+key],
+			data;
+
+		if ( !raw ) {
+			return;
+		}
+
+		try {
+			data = JSON.parse( localStorage[VALUE_PREFIX+key] );
+		}
+		catch (err) {
+			return;
+		}
+
+		var index = localStorage[INDEX_PREFIX+key];
+		if (index !== PERSISTENT_FLAG) {
+			index = parseInt(index);
+			if ( isNaN(index) ) {
+				return;
+			}
+		}
+
+		cache[key] = data;
+		if (index === PERSISTENT_FLAG) {
+			persistentKeys.push(key);
+		}
+		else {
+			keys[index] = key;
+		}
+
+		currentSize += raw.length;
+	}
+
+	function updateIndexes (index) {
+		for (var i=(index||0), l=keys.length; i<l; i++) {
+			localStorage[INDEX_PREFIX+keys[i]] = i+'';
+		}
+	}
+
+
+
+	/* Storage APIs */
+
+	function setValue (key, value, isPersistent) {
+		if (typeof key !== 'string') {
+			throw TypeError('key must be a string, got ' + key);
+		}
+
+		if (typeof value === 'undefined') {
+			deleteValue(key);
+			return;
+		}
+
+		switch (typeof isPersistent) {
+			case 'undefined':
+			case 'boolean':
+				break;
+			default:
+				throw TypeError('persistence flag must be a boolean if defined, got ' + isPersistent);
+		}
+
+		var raw;
+		try {
+			raw = JSON.stringify(value);
+		}
+		catch (err) {
+			throw TypeError('value must be JSON stringifiable, got ' + value);
+		}
+
+		currentSize -= (localStorage[VALUE_PREFIX+key]||'').length;
+		delete localStorage[VALUE_PREFIX+key];
+
+		var index;
+
+		index = keys.indexOf(key);
+		if (index !== -1) {
+			keys.splice(index, 1);
+		}
+
+		index = persistentKeys.indexOf(key);
+		if (index !== -1) {
+			persistentKeys.splice(index, 1);
+		}
+
+		cache[key] = value;
+
+		if (isPersistent !== false) {
+			localStorage[VALUE_PREFIX+key] = raw;
+			currentSize += raw.length;
+
+			if (isPersistent === true) {
+				persistentKeys.push(key);
+				localStorage[INDEX_PREFIX+key] = PERSISTENT_FLAG;
+			}
+			else {
+				keys.unshift(key);
+			}
+		}
+
+		updateIndexes();
+
+		triggerEvent(key, value);
+
+		enforceMaximums();
+	}
+
+	function getValue (key) {
+		if (typeof key !== 'string') {
+			throw TypeError('key must be a string, got ' + key);
+		}
+
+		var index = keys.indexOf(key);
+		if (index > 0) {
+			keys.splice(index, 1);
+			keys.unshift(key);
+			updateIndexes();
+		}
+
+		return cache[key];
+	}
+
+	function peekValue (key) {
+		if (typeof key !== 'string') {
+			throw TypeError('key must be a string, got ' + key);
+		}
+
+		return cache[key];
+	}
+
+	function hasValue (key) {
+		if (typeof key !== 'string') {
+			throw TypeError('key must be a string, got ' + key);
+		}
+
+		return (key in cache);
+	}
+
+	function deleteValue (key, noUpdate) {
+		if (typeof key !== 'string') {
+			throw TypeError('key must be a string, got ' + key);
+		}
+
+		var index;
+
+		if ( !noUpdate ) {
+			index = keys.indexOf(key);
+			if (index !== -1) {
+				keys.splice(index, 1);
+			}
+
+			index = persistentKeys.indexOf(key);
+			if (index !== -1) {
+				persistentKeys.splice(index, 1);
+			}
+		}
+
+		currentSize -= (localStorage[VALUE_PREFIX+key] || '').length;
+
+		delete cache[key];
+		delete localStorage[VALUE_PREFIX+key];
+		delete localStorage[INDEX_PREFIX+key];
+
+		if ( !noUpdate ) {
+			triggerEvent(key);
+		}
+	}
+
+
+
+	/* Cache invalidation */
+
+	function setMaxKeys (val) {
+		if ((typeof val !== 'number') || (val <= 0)) {
+			throw TypeError('max keys must be a positive number, got ' + val);
+		}
+
+		maxKeys = val;
+		enforceMaximums();
+	}
+
+	function setMaxSize (val) {
+		if ((typeof val !== 'number') || (val <= 0)) {
+			throw TypeError('max size must be a positive number, got ' + val);
+		}
+
+		maxSize = val;
+		enforceMaximums();
+	}
+
+	function enforceMaximums (noUpdate) {
+		var numPersistent = persistentKeys.length,
+			numKeys       = keys.length,
+			deletes       = [];
+
+		if (numPersistent + numKeys > maxKeys) {
+			var spill = maxKeys-numPersistent;
+			if (spill > 0) {
+				var keySpill = keys.splice(-spill);
+				deletes = deletes.concat(keySpill);
+				for (var i=0, l=keySpill.length; i<l; i++) {
+					deleteValue(keySpill[i], true);
+				}
+			}
+		}
+
+		while ((currentSize > maxSize) && keys.length) {
+			var key = keys.pop();
+			deletes.push(key);
+			deleteValue(key, true);
+		}
+
+		if ( !noUpdate ) {
+			for (var i=0, l=deletes.length; i<l; i++) {
+				triggerEvent( deletes[i] );
+			}
+		}
+	}
+
+
+
+	/* Eventing */
+
+	function bindListener (key, handler) {
+		switch (typeof key) {
+			case 'function':
+				handler = key;
+				key     = undefined;
+			case 'string':
+			case 'undefined':
+				break;
+			default:
+				throw TypeError('bound key must be a string if defined, got ' + key);
+		}
+		if (typeof handler !== 'function') {
+			throw TypeError('bound handler must be a function, got ' + handler);
+		}
+
+		removeFunction(allHandlers, handler);
+
+		if ( !key ) {
+			allHandlers.push(handler);
+		}
+		else if (key in handlers) {
+			removeFunction(handlers[key], handler);
+			handlers[key].push(handler);
+		}
+		else {
+			handlers[key] = [handler];
+		}
+	}
+
+	function unbindListener (key, handler) {
+		switch (typeof key) {
+			case 'function':
+				handler = key;
+				key     = undefined;
+			case 'undefined':
+			case 'string':
+				break;
+			default:
+				throw TypeError('unbound key must be a string if defined, got ' + key);
+		}
+		switch (typeof handler) {
+			case 'undefined':
+			case 'function':
+				break;
+			default:
+				throw TypeError('unbound handler must be a function if defined, got ' + handler);
+		}
+
+		if (key) {
+			if ( !handler ) {
+				delete handlers[key];
+			}
+			else if (key in handlers) {
+				removeFunction(handlers[key], handler);
+				if (handlers[key].length === 0) {
+					delete handlers[key];
+				}
+			}
+		}
+		else {
+			if (handler) {
+				removeFunction(allHandlers, handler);
+				for (var key in handlers) {
+					removeFunction(handlers[key], handler);
+					if (handlers[key].length === 0) {
+						delete handlers[key];
+					}
+				}
+			}
+			else {
+				allHandlers = [];
+				for (var key in handlers) {
+					delete handlers[key];
+				}
+			}
+		}
+	}
+
+	function removeFunction (list, func) {
+		for (var i=list.length; i--;) {
+			if (list[i] === func) {
+				list.splice(i, 1);
+			}
+		}
+	}
+
+	function triggerEvent (key, value) {
+		allHandlers.forEach(function (func) {
+			func(key, value);
+		});
+
+		(handlers[key] || []).forEach(function (func) {
+			func(key, value);
+		});
+	}
+}(window, document, window.Zepto, window.jQuery);

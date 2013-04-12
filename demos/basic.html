@@ -16,29 +16,10 @@
 	<body>
 		<div id="output"></div>
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 		<script src="../store.js"></script>
 		<script>
 			(function (window, document) {
-				var counters = $.store('counters');
-
-				$(window).click(function () {
-					var clicks = counters.get('clicks') || 0;
-					counters.set('clicks', clicks + 1);
-				});
-
-
-
-				var output = $('#output');
-
-				function printClicks () {
-					var clicks = counters.get('clicks') || 0;
-					output.text('Clicks: ' + clicks);
-				}
-
-				counters.bind('clicks', printClicks);
-
-				printClicks();
+				//TODO
 			})(window, document);
 		</script>
 	</body>
