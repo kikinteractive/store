@@ -1,115 +1,77 @@
 store.js - Bindable & persistent storage
 ========================================
 
-TODO
+Store.js provides persistent storage with a bindable interface, convenient for updating views or triggering events based on data.
 
-Store.js provides namespaced persistent storage units that provide a bindable interface, convenient for updating views or triggering events based on data.
-
-store.js also provides convenient bindings for ZeptoJS and jQuery to make the development process as seamless as possible.
+Since persistence is optional, Store.js is at its best when it is used at the global interface for local data. A general work flow is having a synchronisation layer with an external data source and then using Store.js as a centralised data layer for all client-side code.
 
 
 Links
 -----
 
-[Download script (v1.0 minified)](http://code.kik.com/store/1.0.min.js)
-
-[View demo](http://code.kik.com/store/demos/basic.html)
+[Download script (v2.0.0 minified)](http://cdn.kik.com/store/2.0.0/store.js)
 
 
-Usage with ZeptoJS or jQuery
-----------------------------
+Usage
+-----
 
 ### Basic usage
 
 ```js
 // Store data
-$.store.set('animal', 'dog');
+Store.set('animal', 'dog');
 
 // Retrieve data
-$.store.get('animal'); // 'dog'
+Store.get('animal'); // 'dog'
 
 // Test for key existence
-$.store.has('animal'); // true
+Store.has('animal'); // true
 
 // Delete data
-$.store.del('animal');
+Store.del('animal');
 ```
 
 
 ### Store any JSON object
 
 ```js
-$.store.set('animals', [ 'dog', 'cat' ]);
-$.store.get('animals'); // [ 'dog', 'cat' ]
+Store.set('animals', [ 'dog', 'cat' ]);
+Store.get('animals'); // [ 'dog', 'cat' ]
 ```
 
 
 ### Bind to data changes
 
 ```js
-$.store.bind('animal', function (key, value) {
-	// key   === 'animal'
-	// value === 'cat'
-});
-$.store.set('animal', 'cat');
+function handler (key, value) {
+	// key was updated to value
+}
+
+Store.on(handler);         // bind to all updates
+Store.on('key', handler);  // listen to single key
+
+Store.off(handler);        // unbind handler globally
+Store.off('key', handler); // unbind handler from key
+Store.off();               // unbind all handlers
+Store.off('key');          // unbind all from key
 ```
 
 
-### Create a namespaced storage unit
+### Memory pressures
 
 ```js
-var animals = $.store('animals');
-animals.set('doggie', { type: 'dog', age: 5 });
-animals.set('catty' , { type: 'cat', age: 7 });
+Store.maxKeys = 20;
+// max items in cache will be capped at 20 (LRU)
 
-var temp = $.store();
-// storage in temp will not be persistent
-```
+Store.maxSize = 1024 * 1024;
+// max bytes in cache will be capped at 1MB (LRU)
 
+Store.peek('key');
+// same as Store.get except wont effect LRU-ness
 
-### Bind directly to DOM elements
+Store.set('key', 'value', true);
+// this key is now immune to memory pressures
 
-```js
-// elem is some DOM element
-$(elem).storeBind('animal');
-$.store.set('animal', 'cow');
-// elem now contains a single textnode with the text 'cow'
-
-$(elem).storeBind('animals', function (key, value) {
-	return 'Animals: ' + value.join(', ');
-});
-$.store.set('animals', [ 'dog', 'cat' ]);
-// elem now contains a single textnode with the text 'Animals: dog, cat'
-
-// Bind to data in specific storage units
-var animals = $.store('animals');
-$(elem).storeBind(animals, 'wally');
-```
-
-
-### Take a snapshot of stored data
-
-```js
-var snapshot = $.store.snapshot();
-$.store.set('animal', 'walrus');
-snapshot; // { animal: 'cat', animals: ['dog', 'cat'] }
-```
-
-
-Standalone Usage
-----------------
-
-store.js has no external dependencies and will work perfectly fine as a standalone library.
-
-
-### Make elements scrollable
-
-```js
-$.store === Store; // true
-
-var animals = Store('animals');
-animals.bind('wally', function (key, value) {
-	return name + ' is ' + value.age + ' years old';
-});
-animals.set('wally', { type: 'walrus', age: 10 });
+Store.set('key', 'value', false);
+// this will be stored in memory (not persistent)
 ```
