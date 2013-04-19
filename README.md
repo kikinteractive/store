@@ -1,4 +1,4 @@
-store.js - Bindable & persistent storage
+Store.js - Bindable & persistent storage
 ========================================
 
 Store.js provides persistent storage with a bindable interface, convenient for updating views or triggering events based on data.
